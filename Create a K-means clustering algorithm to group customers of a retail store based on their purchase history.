@@ -1,0 +1,40 @@
+import numpy as np
+import pandas as pd
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+# Sample dataset: Customer ID, Electronics, Clothing, Groceries
+data = {
+    'CustomerID': [1, 2, 3, 4, 5],
+    'Electronics': [200, 100, 500, 700, 300],
+    'Clothing': [50, 200, 150, 100, 400],
+    'Groceries': [300, 400, 200, 100, 500]
+}
+df = pd.DataFrame(data)
+
+# Considering only the purchase history for clustering
+X = df.drop('CustomerID', axis=1)
+
+# Determine the optimal number of clusters (k) - Elbow Method
+wcss = []
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+    kmeans.fit(X)
+    wcss.append(kmeans.inertia_)
+
+# Plotting the results onto a line graph to observe 'The elbow'
+plt.plot(range(1, 11), wcss)
+plt.title('Elbow Method')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS') # within cluster sum of squares
+plt.show()
+
+# Assuming the elbow is at k=3 for simplicity
+k = 3
+kmeans = KMeans(n_clusters=k, init='k-means++', max_iter=300, n_init=10, random_state=0)
+y_kmeans = kmeans.fit_predict(X)
+
+# Adding the cluster information to the original dataframe
+df['Cluster'] = y_kmeans
+
+print(df)
